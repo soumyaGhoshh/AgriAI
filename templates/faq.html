@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-lg-9">
+            <div class="text-center mb-4">
+                <h2 class="fw-bold"><i class="fas fa-question-circle me-2 text-success"></i>Frequently Asked Questions</h2>
+                <p class="lead text-muted">Find answers to common questions about Krishi Bandhu</p>
+            </div>
+            
+            <div class="accordion" id="faqAccordion">
+                <!-- Account & General Questions -->
+                <div class="accordion-item border-0 mb-3 shadow-sm">
+                    <h3 class="accordion-header">
+                        <button class="accordion-button bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#general">
+                            <i class="fas fa-user-circle me-2 text-success"></i> Account & General Questions
+                        </button>
+                    </h3>
+                    <div id="general" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body pt-0">
+                            <!-- FAQ Item 1 -->
+                            <div class="mb-3 pb-2 border-bottom">
+                                <h5 class="fw-bold">Is Krishi Bandhu free to use?</h5>
+                                <p>Yes! All core features including crop disease detection, weather forecasts, and farming advisories are completely free for farmers. We may introduce premium features in the future with nominal charges.</p>
+                            </div>
+                            
+                            <!-- FAQ Item 2 -->
+                            <div class="mb-3 pb-2 border-bottom">
+                                <h5 class="fw-bold">Do I need to create an account?</h5>
+                                <p>While you can access basic features without an account, creating a free account allows you to save your farm locations, track detection history, and receive personalized recommendations.</p>
+                            </div>
+                            
+                            <!-- FAQ Item 3 -->
+                            <div class="mb-3">
+                                <h5 class="fw-bold">Is my data secure?</h5>
+                                <p>Absolutely. We follow strict data protection protocols and never share your personal information or farm data with third parties without your consent.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Crop Disease Detection -->
+                <div class="accordion-item border-0 mb-3 shadow-sm">
+                    <h3 class="accordion-header">
+                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#diseaseDetection">
+                            <i class="fas fa-leaf me-2 text-success"></i> Crop Disease Detection
+                        </button>
+                    </h3>
+                    <div id="diseaseDetection" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body pt-0">
+                            <!-- FAQ Item 4 -->
+                            <div class="mb-3 pb-2 border-bottom">
+                                <h5 class="fw-bold">How accurate is the disease detection?</h5>
+                                <p>Our AI model achieves 90-95% accuracy for common crop diseases when provided with clear images of affected leaves. Accuracy may vary for less common diseases or poor quality images.</p>
+                            </div>
+                            
+                            <!-- FAQ Item 5 -->
+                            <div class="mb-3 pb-2 border-bottom">
+                                <h5 class="fw-bold">What crops does the system recognize?</h5>
+                                <p>We currently support major crops including rice, wheat, maize, cotton, sugarcane, and various vegetables. We're continuously adding support for more crops.</p>
+                            </div>
+                            
+                            <!-- FAQ Item 6 -->
+                            <div class="mb-3 pb-2 border-bottom">
+                                <h5 class="fw-bold">How should I take photos for best results?</h5>
+                                <p>
+                                    - Take photos in natural daylight<br>
+                                    - Focus on affected leaves (fill 70% of frame)<br>
+                                    - Include both healthy and affected parts<br>
+                                    - Avoid shadows and blurry images<br>
+                                    - Take multiple angles if possible
+                                </p>
+                            </div>
+                            
+                            <!-- FAQ Item 7 -->
+                            <div class="mb-3">
+                                <h5 class="fw-bold">What if the detection seems incorrect?</h5>
+                                <p>Our system provides multiple possible matches with confidence percentages. If uncertain, you can submit the image for expert review (available in premium) or try taking clearer photos from different angles.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Weather & Advisory -->
+                <div class="accordion-item border-0 mb-3 shadow-sm">
+                    <h3 class="accordion-header">
+                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#weather">
+                            <i class="fas fa-cloud-sun me-2 text-success"></i> Weather & Farming Advisory
+                        </button>
+                    </h3>
+                    <div id="weather" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body pt-0">
+                            <!-- FAQ Item 8 -->
+                            <div class="mb-3 pb-2 border-bottom">
+                                <h5 class="fw-bold">How current is the weather data?</h5>
+                                <p>We update weather information every 30 minutes from trusted meteorological sources including IMD. Our forecasts are typically accurate for 3-5 days.</p>
+                            </div>
+                            
+                            <!-- FAQ Item 9 -->
+                            <div class="mb-3 pb-2 border-bottom">
+                                <h5 class="fw-bold">How are farming advisories generated?</h5>
+                                <p>Our AI analyzes weather patterns, soil conditions (if provided), crop stage, and regional farming practices to generate personalized recommendations.</p>
+                            </div>
+                            
+                            <!-- FAQ Item 10 -->
+                            <div class="mb-3">
+                                <h5 class="fw-bold">Can I get alerts for weather changes?</h5>
+                                <p>Yes! After creating an account, you can enable SMS/email notifications for critical weather events like heavy rain, frost, or heat waves.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Technical Support -->
+                <div class="accordion-item border-0 mb-3 shadow-sm">
+                    <h3 class="accordion-header">
+                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#technical">
+                            <i class="fas fa-tools me-2 text-success"></i> Technical Support
+                        </button>
+                    </h3>
+                    <div id="technical" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body pt-0">
+                            <!-- FAQ Item 11 -->
+                            <div class="mb-3 pb-2 border-bottom">
+                                <h5 class="fw-bold">What browsers are supported?</h5>
+                                <p>Krishi Bandhu works best on Chrome, Firefox, and Edge. For mobile, also you can use the webiste. It is properly responsive.</p>
+                            </div>
+                            
+                            <!-- FAQ Item 12 -->
+                            <div class="mb-3 pb-2 border-bottom">
+                                <h5 class="fw-bold">The page isn't loading properly - what should I do?</h5>
+                                <p>
+                                    1. Refresh the page<br>
+                                    2. Clear your browser cache<br>
+                                    3. Try a different browser<br>
+                                    4. Check your internet connection<br>
+                                    If problems persist, contact our support team.
+                                </p>
+                            </div>
+                            
+                            <!-- FAQ Item 13 -->
+                            <div class="mb-3">
+                                <h5 class="fw-bold">How do I contact support?</h5>
+                                <p>Use the 'Contact Us' form in the app/website, email soumya.ghosh.cloud@gmail.com, or call our helpline at +91 9332404107 (1PM-9PM, Mon-Sat).</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Additional Features -->
+                <div class="accordion-item border-0 mb-3 shadow-sm">
+                    <h3 class="accordion-header">
+                        <button class="accordion-button collapsed bg-light" type="button" data-bs-toggle="collapse" data-bs-target="#features">
+                            <i class="fas fa-star me-2 text-success"></i> Future Improvements
+                        </button>
+                    </h3>
+                    <div id="features" class="accordion-collapse collapse" data-bs-parent="#faqAccordion">
+                        <div class="accordion-body pt-0">
+                            <!-- FAQ Item 14 -->
+                            <div class="mb-3 pb-2 border-bottom">
+                                <h5 class="fw-bold">How do I know when and how much to water?</h5>
+                                <p>Coming Soon: Get personalized irrigation schedules using AI that considers weather, soil moisture, and crop type—saving water and boosting yield.</p>
+                            </div>
+                            
+                            <!-- FAQ Item 15 -->
+                            <div class="mb-3 pb-2 border-bottom">
+                                <h5 class="fw-bold">Is there a mobile app available?</h5>
+                                <p>Coming Soon: Our Android app is currently on testing. Our website is mobile responsive. The app will offer offline access to some features.</p>
+                            </div>
+
+                            <div class="mb-3 pb-2 border-bottom">
+                                <h5 class="fw-bold">Can I talk to the assistant in my own language?</h5>
+                                <p>Coming Soon: Interact with the AI assistant in Hindi, Bengali, Tamil, Telugu, Kannada, etc., using voice commands for hands-free help.</p>
+                            </div>
+
+                            <div class="mb-3 pb-2 border-bottom">
+                                <h5 class="fw-bold">Can I track costs and profits?</h5>
+                                <p>Coming Soon: Simple tools to track expenses, income, and see profitability reports—just like a digital accountant for your farm.</p>
+                            </div>
+                            <!-- FAQ Item 16 -->
+                            <div class="mb-3">
+                                <h5 class="fw-bold">Do you provide market prices?</h5>
+                                <p>Coming Soon: We're currently testing a market price feature that shows daily commodity prices from nearby mandis. This will take some time.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,282 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="fertilizer-container">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0"><i class="fas fa-tractor me-2"></i>Agricultural Shops Finder</h3>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-md-8">
+                            <div class="input-group">
+                                <input type="text" class="form-control" id="location-search" 
+                                       placeholder="Enter city, address or location...">
+                                <button class="btn btn-success" type="button" id="search-location-btn">
+                                    <i class="fas fa-search-location"></i> Search Location
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4 text-end">
+                            <button class="btn btn-outline-success" id="find-nearby-btn">
+                                <i class="fas fa-location-arrow me-2"></i>Use My Location
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="map-container mb-4 border rounded" style="height: 500px;">
+                        <div id="map" style="height: 100%;"></div>
+                    </div>
+                    
+                    <div class="shops-list">
+                        <h4 class="mb-3">Found Agricultural Stores</h4>
+                        <div class="row">
+                            <div class="col-md-4 mb-3">
+                                <input type="text" class="form-control" placeholder="Filter by name or address..." 
+                                       id="shop-filter">
+                            </div>
+                        </div>
+                        
+                        <div class="list-group" id="shops-list">
+                            <div class="text-center py-5" id="loading-shops" style="display: none;">
+                                <div class="spinner-border text-success" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                                <p class="mt-2">Discovering agricultural stores...</p>
+                            </div>
+                            
+                            <div class="text-center py-5" id="no-shops" style="display: none;">
+                                <i class="fas fa-seedling fa-3x text-muted mb-3"></i>
+                                <h5>No agricultural stores found in this area</h5>
+                                <p>Try expanding search radius or different location</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://maps.googleapis.com/maps/api/js?key={GOOGLE_MAPS_API_KEY}=places"></script>
+<script>
+$(document).ready(function() {
+    let map;
+    let markers = [];
+    let allShops = [];
+    const defaultIcon = {
+        url: 'http://maps.google.com/mapfiles/ms/icons/green-dot.png',
+        scaledSize: new google.maps.Size(32, 32)
+    };
+
+    // Initialize map with shops
+    function initMap(lat, lng, shops) {
+        const mapOptions = {
+            center: { lat: lat, lng: lng },
+            zoom: 14,
+            mapTypeId: 'roadmap'
+        };
+        
+        if (!map) {
+            map = new google.maps.Map(document.getElementById('map'), mapOptions);
+        } else {
+            map.setCenter({ lat: lat, lng: lng });
+            map.setZoom(14);
+        }
+
+        // Clear existing markers
+        markers.forEach(marker => marker.setMap(null));
+        markers = [];
+
+        // Add location marker
+        new google.maps.Marker({
+            position: { lat: lat, lng: lng },
+            map: map,
+            title: 'Search Location',
+            icon: {
+                url: 'http://maps.google.com/mapfiles/ms/icons/red-dot.png',
+                scaledSize: new google.maps.Size(32, 32)
+            }
+        });
+
+        // Add shop markers
+        shops.forEach(shop => {
+            const marker = new google.maps.Marker({
+                position: { lat: shop.location.lat, lng: shop.location.lng },
+                map: map,
+                title: shop.name,
+                icon: defaultIcon
+            });
+            
+            // Add info window
+            const infoWindow = new google.maps.InfoWindow({
+                content: `
+                    <div class="map-info-window">
+                        <h6>${shop.name}</h6>
+                        <p class="mb-1">${shop.address}</p>
+                        ${shop.rating ? `<p>Rating: ${shop.rating}/5</p>` : ''}
+                        ${typeof shop.open !== 'undefined' ? 
+                            `<p class="${shop.open ? 'text-success' : 'text-danger'}">
+                                ${shop.open ? 'Open Now' : 'Closed'}
+                            </p>` : ''}
+                    </div>
+                `
+            });
+            
+            marker.addListener('click', () => infoWindow.open(map, marker));
+            markers.push(marker);
+        });
+    }
+
+    // Fetch shops from backend
+    async function fetchNearbyShops(lat, lng) {
+        try {
+            $('#loading-shops').show();
+            $('#no-shops').hide();
+            
+            const response = await fetch(`/get_shops?lat=${lat}&lng=${lng}`);
+            const data = await response.json();
+            
+            if(data.error) throw new Error(data.error);
+            
+            allShops = data.shops.map(shop => ({
+                ...shop,
+                latitude: shop.location.lat,
+                longitude: shop.location.lng
+            }));
+            
+            updateShopsList(data.shops);
+            initMap(lat, lng, data.shops);
+            
+            return data.shops;
+        } catch (error) {
+            console.error('Error:', error);
+            $('#no-shops').show();
+            return [];
+        } finally {
+            $('#loading-shops').hide();
+        }
+    }
+
+    // Update shops list
+    function updateShopsList(shops) {
+        $('#shops-list').empty();
+        
+        if (shops.length === 0) {
+            $('#no-shops').show();
+            return;
+        }
+
+        shops.forEach(shop => {
+            const shopItem = `
+                <div class="list-group-item mb-3">
+                    <div class="row">
+                        <div class="col-md-8">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <h5 class="mb-2">${shop.name}</h5>
+                                ${shop.rating ? `<span class="badge bg-success">★ ${shop.rating}</span>` : ''}
+                            </div>
+                            <p class="mb-1 text-muted"><i class="fas fa-map-marker-alt"></i> ${shop.address}</p>
+                            
+                            <div class="shop-meta">
+                                <button class="btn btn-sm btn-outline-success me-2 directions-btn" 
+                                    data-lat="${shop.location.lat}" data-lng="${shop.location.lng}">
+                                    <i class="fas fa-directions"></i> Directions
+                                </button>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            ${typeof shop.open !== 'undefined' ? `
+                            <div class="status-indicator ${shop.open ? 'text-success' : 'text-danger'}">
+                                <i class="fas fa-circle"></i> ${shop.open ? 'Currently Open' : 'Closed Now'}
+                            </div>` : ''}
+                        </div>
+                    </div>
+                </div>
+            `;
+            $('#shops-list').append(shopItem);
+        });
+
+        // Add directions click handler
+        $('.directions-btn').click(function() {
+            const lat = $(this).data('lat');
+            const lng = $(this).data('lng');
+            window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`);
+        });
+    }
+
+    // Event Listeners
+    $('#search-location-btn').click(async () => {
+        const location = $('#location-search').val().trim();
+        if (!location) return;
+
+        try {
+            const { lat, lng } = await geocodeLocation(location);
+            await fetchNearbyShops(lat, lng);
+        } catch (error) {
+            alert('Error: ' + error);
+        }
+    });
+
+    $('#find-nearby-btn').click(async () => {
+        if (!navigator.geolocation) {
+            alert('Geolocation not supported');
+            return;
+        }
+
+        try {
+            const pos = await new Promise((resolve, reject) => 
+                navigator.geolocation.getCurrentPosition(resolve, reject));
+            
+            await fetchNearbyShops(pos.coords.latitude, pos.coords.longitude);
+        } catch (error) {
+            alert('Location access denied: ' + error.message);
+        }
+    });
+
+    // Geocoding helper
+    function geocodeLocation(address) {
+        return new Promise((resolve, reject) => {
+            new google.maps.Geocoder().geocode(
+                { address }, 
+                (results, status) => {
+                    if (status === 'OK') {
+                        const loc = results[0].geometry.location;
+                        resolve({ lat: loc.lat(), lng: loc.lng() });
+                    } else {
+                        reject('Location not found');
+                    }
+                }
+            );
+        });
+    }
+
+    // Filter shops
+    $('#shop-filter').on('input', function() {
+        const term = $(this).val().toLowerCase();
+        const filtered = allShops.filter(shop => 
+            shop.name.toLowerCase().includes(term) ||
+            shop.address.toLowerCase().includes(term)
+        );
+        updateShopsList(filtered);
+    });
+});
+</script>
+
+<style>
+.map-info-window {
+    min-width: 250px;
+    line-height: 1.4;
+}
+.shop-meta {
+    margin-top: 1rem;
+}
+.status-indicator {
+    font-size: 0.9rem;
+}
+</style>
+{% endblock %}

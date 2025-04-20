@@ -1,0 +1,289 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .heading-container {
+        background: url("{{ url_for('static', filename='images/bgfarm02.jpg') }}");
+        background-size: cover;
+        background-position: center;
+        padding: 6rem 0;
+        position: relative;
+        margin-bottom: 2rem;
+        border-radius: 20px;  /* Rounded corners for the image */
+        overflow: hidden;  /* Ensures the image respects the border radius */
+        box-shadow: 0 4px 15px rgba(0,0,0,0.1);  /* Subtle shadow for depth */
+    }
+
+    .heading-content {
+        position: relative;
+        z-index: 1;
+        text-align: center;
+        padding: 2rem;
+        margin: 0 auto;
+        max-width: 90%;
+    }
+
+    .heading-content h1 {
+        color: #ffffff;
+        text-shadow: 2px 2px 8px rgba(0, 0, 0, 0.7);
+        font-size: 3rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .heading-content p {
+        color: #ffffff;
+        text-shadow: 1px 1px 4px rgba(0, 0, 0, 0.5);
+        font-size: 1.5rem;
+        max-width: 600px;
+        margin: 0 auto;
+    }
+
+    /* Rest of your existing styles remain unchanged */
+    .feature-card {
+        height: 100%;
+        transition: all 0.3s ease;
+        border: 2px solid #28a745;
+        border-radius: 15px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 20px rgba(40, 167, 69, 0.15);
+    }
+    
+    .btn-success {
+        padding: 0.75rem 1.5rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        border-radius: 50px;
+    }
+    
+    .btn-success:hover {
+        transform: scale(1.05);
+        box-shadow: 0 4px 15px rgba(40, 167, 69, 0.4);
+    }
+
+    .scheme-card {
+        border-left: 4px solid #28a745;
+        border-radius: 8px;
+        margin-bottom: 10px;
+        transition: all 0.2s ease;
+    }
+
+    .scheme-card:hover {
+        background-color: #f8f9fa;
+        transform: translateX(5px);
+    }
+
+    .weather-card {
+        background: linear-gradient(135deg, #56ab2f, #a8e063);
+        color: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        height: 100%;
+    }
+</style>
+
+<div class="heading-container">
+    <div class="container">
+        <div class="heading-content">
+            <h1 class="fw-bold mb-4">
+                Welcome to Krishi Bandhu
+            </h1>
+            <p class="lead">
+                Your AI-powered agricultural assistant for small farmers in India
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="container py-4">
+    <!-- Main Features Row -->
+    <div class="row g-4">
+        <div class="col-md-3">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-comments fa-3x text-success mb-3"></i>
+                    <h3 class="fw-bold">AI Expert Chat</h3>
+                    <p class="text-muted">Instant 24/7 agricultural guidance and resolution</p>
+                    <a href="/chat" class="btn btn-success rounded-pill px-4">
+                        <i class="fas fa-comment-dots me-2"></i>Start Chat
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-camera fa-3x text-success mb-3"></i>
+                    <h3 class="fw-bold">Crop Doctor</h3>
+                    <p class="text-muted">Scan crops for diseases, pests, and growth analysis</p>
+                    <a href="/scan" class="btn btn-success rounded-pill px-4">
+                        <i class="fas fa-search me-2"></i>Diagnose Now
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-cloud-sun fa-3x text-success mb-3"></i>
+                    <h3 class="fw-bold">Farm Weather</h3>
+                    <p class="text-muted">Hyperlocal weather forecasts and farming advisories</p>
+                    <a href="/weather" class="btn btn-success rounded-pill px-4">
+                        <i class="fas fa-umbrella me-2"></i>Check Weather
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-seedling fa-3x text-success mb-3"></i>
+                    <h3 class="fw-bold">Soil Analysis</h3>
+                    <p class="text-muted">Complete soil health report and improvement plan</p>
+                    <a href="/soil" class="btn btn-success rounded-pill px-4">
+                        <i class="fas fa-flask me-2"></i>Test Soil
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Weather and Government Schemes Row -->
+    <div class="row g-4 mt-3">
+        <div class="col-md-4">
+            <div class="weather-card text-center">
+                <i class="fas fa-sun weather-icon"></i>
+                <h3>Today's Weather Snapshot</h3>
+                <div id="weather-summary">
+                    <p class="mb-2"><i class="fas fa-temperature-high me-2"></i> Loading temperature...</p>
+                    <p class="mb-2"><i class="fas fa-tint me-2"></i> Loading humidity...</p>
+                    <p><i class="fas fa-wind me-2"></i> Loading wind speed...</p>
+                </div>
+                <a href="/weather" class="btn btn-light rounded-pill mt-3">
+                    <i class="fas fa-info-circle me-2"></i>Full Forecast
+                </a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 feature-card">
+                <div class="card-body">
+                    <h3 class="text-success mb-4">
+                        <i class="fas fa-file-invoice-dollar me-2"></i> 
+                        Government Schemes
+                    </h3>
+                    <div class="list-group">
+                        <a href="https://pmkisan.gov.in/" target="_blank" class="list-group-item list-group-item-action scheme-card">
+                            <h5 class="mb-1">PM-KISAN</h5>
+                            <p class="mb-0 text-muted">₹6,000/year direct income support</p>
+                        </a>
+                        <a href="https://soilhealth.dac.gov.in/" target="_blank" class="list-group-item list-group-item-action scheme-card">
+                            <h5 class="mb-1">Soil Health Card</h5>
+                            <p class="mb-0 text-muted">Free soil testing and recommendations</p>
+                        </a>
+                        <a href="https://pmfby.gov.in/" target="_blank" class="list-group-item list-group-item-action scheme-card">
+                            <h5 class="mb-1">Pradhan Mantri Fasal Bima Yojana</h5>
+                            <p class="mb-0 text-muted">Crop insurance at 2% premium</p>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card h-100 feature-card">
+                <div class="card-body text-center">
+                    <i class="fas fa-store fa-3x text-success mb-3"></i>
+                    <h3 class="fw-bold">Local Agri Shops</h3>
+                    <p class="text-muted">Find verified suppliers of seeds, tools and fertilizers near you</p>
+                    <a href="/fertilizer" class="btn btn-success rounded-pill px-4 mt-2">
+                        <i class="fas fa-map-marker-alt me-2"></i>Find Nearby Shops
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Features Section -->
+<div class="features-section py-5 bg-light">
+    <div class="container">
+        <h2 class="text-center mb-5">How Krishi Bandhu Helps Farmers</h2>
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="d-flex">
+                    <div class="me-4">
+                        <i class="fas fa-seedling feature-icon"></i>
+                    </div>
+                    <div>
+                        <h4>Crop Management</h4>
+                        <p>Get personalized advice on crop selection, planting techniques, and growth monitoring specific to Indian states climates.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex">
+                    <div class="me-4">
+                        <i class="fas fa-bug feature-icon"></i>
+                    </div>
+                    <div>
+                        <h4>Pest Control</h4>
+                        <p>Identify pests and diseases early with our image recognition technology and get organic treatment solutions.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex">
+                    <div class="me-4">
+                        <i class="fas fa-microscope feature-icon"></i>
+                    </div>
+                    <div>
+                        <h4>Soil Health Analysis</h4>
+                        <p>Get detailed soil composition reports and nutrient recommendations based on scientific analysis of your soil samples.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="d-flex">
+                    <div class="me-4">
+                        <i class="fas fa-store feature-icon"></i>
+                    </div>
+                    <div>
+                        <h4>Nearby Agricultural Shops</h4>
+                        <p>Find verified local vendors for fertilizers, seeds, and farming equipment in your area.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Simple weather data loader
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/get_weather?lat=26.8467&lon=80.9462')  // Default to Lucknow coordinates
+        .then(response => response.json())
+        .then(data => {
+            if(data.current) {
+                const weatherHTML = `
+                    <p class="mb-2"><i class="fas fa-temperature-high me-2"></i> ${data.current.temp}°C (Feels like ${data.current.feels_like}°C)</p>
+                    <p class="mb-2"><i class="fas fa-tint me-2"></i> Humidity: ${data.current.humidity}%</p>
+                    <p><i class="fas fa-wind me-2"></i> Wind: ${data.current.wind_speed} km/h</p>
+                `;
+                document.getElementById('weather-summary').innerHTML = weatherHTML;
+            }
+        })
+        .catch(error => {
+            console.error('Error loading weather:', error);
+            document.getElementById('weather-summary').innerHTML = 
+                '<p>Weather data currently unavailable</p>';
+        });
+});
+</script>
+{% endblock %}

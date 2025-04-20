@@ -1,0 +1,286 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .weather-container {
+        min-height: calc(100vh - 150px); /* Adjust based on your header/footer height */
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .weather-info-card {
+        height: 100%;
+    }
+    
+    .forecast-container {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    .weather-icon {
+        width: 80px;
+        height: 80px;
+    }
+
+    .forecast-card {
+        transition: transform 0.2s;
+    }
+
+    .forecast-card:hover {
+        transform: translateY(-3px);
+    }
+
+    .forecast-temp .high {
+        color: #dc3545;
+    }
+
+    .forecast-temp .low {
+        color: #0d6efd;
+    }
+
+    .weather-detail {
+        margin-bottom: 0.8rem;
+        font-size: 0.9rem;
+    }
+
+    #farming-advisory {
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+    
+    .footer {
+        margin-top: 20px;
+        position: relative;
+        bottom: 0;
+        width: 100%;
+    }
+    
+    .main-content {
+        flex: 1 0 auto;
+        padding-bottom: 175px;
+    }
+</style>
+
+<div class="main-content">
+    <div class="row">
+        <div class="col-lg-10 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0"><i class="fas fa-cloud-sun me-2"></i>Weather Forecast</h3>
+                </div>
+                <div class="card-body pb-5">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div class="mb-3">
+                                <h4>Search by Location</h4>
+                                <div class="input-group mb-3">
+                                    <input type="text" id="city-input" class="form-control" placeholder="Enter city name">
+                                    <button class="btn btn-success" id="search-btn">
+                                        <i class="fas fa-search"></i> Search
+                                    </button>
+                                </div>
+                                <p class="text-muted mb-2">or</p>
+                                <button class="btn btn-outline-success mb-3" id="current-location-btn">
+                                    <i class="fas fa-location-arrow"></i> Use Current Location
+                                </button>
+                            </div>
+                            
+                            <div class="weather-info card p-3 mb-3" id="weather-info" style="display: none;">
+                                <h4 class="text-center mb-3">Current Weather</h4>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <h3 class="mb-0" id="weather-city">City Name</h3>
+                                    <img id="weather-icon" src="" alt="Weather icon" class="weather-icon">
+                                </div>
+                                <div class="display-4 text-center mb-1" id="weather-temp">25°C</div>
+                                <div class="text-center h5 mb-3" id="weather-desc">Clear sky</div>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <div class="weather-detail">
+                                            <i class="fas fa-temperature-low"></i>
+                                            Feels like: <span id="weather-feels-like">24°C</span>
+                                        </div>
+                                        <div class="weather-detail">
+                                            <i class="fas fa-tint"></i>
+                                            Humidity: <span id="weather-humidity">65%</span>
+                                        </div>
+                                    </div>
+                                    <div class="col-6">
+                                        <div class="weather-detail">
+                                            <i class="fas fa-wind"></i>
+                                            Wind: <span id="weather-wind">10 km/h</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="forecast-container">
+                                <div class="card bg-light p-3 h-100">
+                                    <h4 class="mb-2">5-Day Agricultural Forecast</h4>
+                                    <div id="forecast-container" class="row g-2"></div>
+                                    
+                                    <div class="mt-3">
+                                        <h5 class="mb-2">Farming Advisory</h5>
+                                        <div class="alert alert-secondary" id="farming-advisory">
+                                            <i class="fas fa-info-circle me-2"></i>
+                                            <span id="advisory-text">Current farming advice will appear here</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    $('#search-btn').click(function() {
+        const city = $('#city-input').val().trim();
+        if (city === '') {
+            showWeatherAlert('Please enter a city name', 'warning');
+            return;
+        }
+        getWeatherByCity(city);
+    });
+    
+    $('#current-location-btn').click(function() {
+        if (navigator.geolocation) {
+            $(this).html('<span class="spinner-border spinner-border-sm"></span> Locating...');
+            navigator.geolocation.getCurrentPosition(
+                position => {
+                    getWeatherByCoords(position.coords.latitude, position.coords.longitude);
+                    $(this).html('<i class="fas fa-location-arrow"></i> Use Current Location');
+                },
+                error => {
+                    showWeatherAlert('Error getting location: ' + error.message, 'danger');
+                    $(this).html('<i class="fas fa-location-arrow"></i> Use Current Location');
+                }
+            );
+        } else {
+            showWeatherAlert('Geolocation is not supported by your browser', 'warning');
+        }
+    });
+
+    function getWeatherByCity(city) {
+        $.ajax({
+            url: '/get_weather',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ city: city }),
+            success: displayWeatherData,
+            error: handleWeatherError
+        });
+    }
+
+    function getWeatherByCoords(lat, lng) {
+        $.ajax({
+            url: '/get_weather',
+            type: 'GET',
+            data: { lat: lat, lon: lng },
+            success: displayWeatherData,
+            error: handleWeatherError
+        });
+    }
+
+    function displayWeatherData(data) {
+        if (!data.current || !data.forecast) {
+            showWeatherAlert('Invalid weather data received', 'danger');
+            return;
+        }
+
+        // Update current weather
+        $('#weather-info').show();
+        $('#weather-city').text(data.current.city);
+        $('#weather-temp').text(data.current.temp + '°C');
+        $('#weather-desc').text(data.current.description);
+        $('#weather-feels-like').text(data.current.feels_like + '°C');
+        $('#weather-humidity').text(data.current.humidity + '%');
+        $('#weather-wind').text(data.current.wind_speed + ' km/h');
+        $('#weather-icon').attr('src', `https://openweathermap.org/img/wn/${data.current.icon}@2x.png`);
+
+        // Update forecast
+        const forecastHtml = data.forecast.map(day => `
+            <div class="col-md-6">
+                <div class="card forecast-card mb-2">
+                    <div class="card-body">
+                        <h6 class="card-title">${new Date(day.date).toLocaleDateString('en-IN', { weekday: 'short', month: 'short', day: 'numeric' })}</h6>
+                        <img src="https://openweathermap.org/img/wn/${day.icon}.png" alt="${day.description}">
+                        <div class="forecast-temp">
+                            <span class="high">${day.temp_max}°</span>/<span class="low">${day.temp_min}°</span>
+                        </div>
+                        <div class="forecast-details">
+                            <div><i class="fas fa-tint"></i> ${day.rain}mm</div>
+                            <div><i class="fas fa-wind"></i> ${day.wind_speed} km/h</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join('');
+        $('#forecast-container').html(forecastHtml);
+
+        // Generate farming advisory
+        generateFarmingAdvisory(data);
+    }
+
+    function generateFarmingAdvisory(data) {
+        const advisories = [];
+        const current = data.current;
+        const forecast = data.forecast;
+
+        // Rain advisory
+        const totalRain = forecast.reduce((sum, day) => sum + day.rain, 0);
+        if (totalRain > 20) {
+            advisories.push('Heavy rain expected - Ensure proper drainage in fields');
+        } else if (totalRain > 10) {
+            advisories.push('Moderate rain forecasted - Schedule irrigation accordingly');
+        }
+
+        // Wind advisory
+        if (current.wind_speed > 20) {
+            advisories.push('High winds expected - Secure crops and equipment');
+        }
+
+        // Temperature advisory
+        if (current.temp < 10) {
+            advisories.push('Low temperatures - Protect sensitive crops from frost');
+        } else if (current.temp > 35) {
+            advisories.push('High temperatures - Schedule watering in early morning/late evening');
+        }
+
+        // Humidity advisory
+        if (current.humidity > 80) {
+            advisories.push('High humidity - Watch for fungal diseases');
+        }
+
+        $('#advisory-text').html(advisories.length > 0 ? 
+            advisories.join('<br>• ') : 
+            'Normal weather conditions - Continue regular farming activities'
+        );
+    }
+
+    function handleWeatherError(xhr) {
+        const errorMsg = xhr.responseJSON?.error || 'Failed to fetch weather data';
+        showWeatherAlert(errorMsg, 'danger');
+    }
+
+    function showWeatherAlert(message, type) {
+        const alertDiv = $(`
+            <div class="alert alert-${type} alert-dismissible fade show" role="alert">
+                ${message}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        `);
+        $('.card-body').prepend(alertDiv);
+        setTimeout(() => alertDiv.alert('close'), 5000);
+    }
+});
+</script>
+{% endblock %}

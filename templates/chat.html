@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="chat-container">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card shadow">
+                <div class="card-header bg-success text-white">
+                    <h3 class="mb-0"><i class="fas fa-comments me-2"></i>Chat with Krishi Bandhu</h3>
+                </div>
+                <div class="card-body">
+                    <div id="chat-box" class="chat-messages mb-3">
+                        <div class="bot-message alert alert-info">
+                            <strong>Krishi Bandhu:</strong> Hello! I'm your agricultural assistant. How can I help you today?
+                        </div>
+                    </div>
+                    
+                    <div class="input-group">
+                        <input type="text" id="user-message" class="form-control" placeholder="Ask your farming question..." aria-label="Ask your farming question">
+                        <button class="btn btn-success" type="button" id="send-btn">
+                            <i class="fas fa-paper-plane"></i> Send
+                        </button>
+                    </div>
+                    
+                    <div class="suggestions mt-3">
+                        <h6>Quick Questions:</h6>
+                        <div class="d-flex flex-wrap gap-2">
+                            <button class="btn btn-outline-success btn-sm suggestion-btn">Best crops for this season?</button>
+                            <button class="btn btn-outline-success btn-sm suggestion-btn">How to treat yellow leaves?</button>
+                            <button class="btn btn-outline-success btn-sm suggestion-btn">Drip irrigation benefits?</button>
+                            <button class="btn btn-outline-success btn-sm suggestion-btn">PM-KISAN scheme details?</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<!-- Add jQuery library if not already included in base.html -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+$(document).ready(function() {
+    // Function to add a message to the chat box
+    function addMessage(sender, message, type) {
+        const messageClass = type === 'user' ? 'alert-success text-end' : 'alert-info';
+        const senderName = type === 'user' ? 'You' : 'Krishi Mitra';
+        
+        $('#chat-box').append(`
+            <div class="${type}-message alert ${messageClass}">
+                <strong>${senderName}:</strong> ${message}
+            </div>
+        `);
+        scrollToBottom();
+    }
+
+    // Function to show typing indicator
+    function showTypingIndicator() {
+        $('#chat-box').append(`
+            <div class="typing-indicator">
+                <div class="dot"></div>
+                <div class="dot"></div>
+                <div class="dot"></div>
+            </div>
+        `);
+        scrollToBottom();
+    }
+
+    // Function to hide typing indicator
+    function hideTypingIndicator() {
+        $('.typing-indicator').remove();
+    }
+
+    // Function to scroll to bottom of chat
+    function scrollToBottom() {
+        const chatBox = document.getElementById('chat-box');
+        chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    // Handle send button click
+    $('#send-btn').click(sendMessage);
+
+    // Handle enter key press
+    $('#user-message').keypress(function(e) {
+        if (e.which === 13) {
+            sendMessage();
+        }
+    });
+
+    // Handle suggestion buttons
+    $('.suggestion-btn').click(function() {
+        $('#user-message').val($(this).text());
+        sendMessage();
+    });
+
+    // Main function to send message
+    function sendMessage() {
+        const message = $('#user-message').val().trim();
+        if (message === '') return;
+
+        // Add user message to chat
+        addMessage('user', message, 'user');
+        $('#user-message').val('');
+
+        // Show typing indicator
+        showTypingIndicator();
+
+        // Send message to server
+        $.ajax({
+            url: '/chat',
+            type: 'POST',
+            contentType: 'application/json',
+            data: JSON.stringify({ message: message }),
+            success: function(response) {
+                hideTypingIndicator();
+                if (response.response) {
+                    addMessage('bot', response.response, 'bot');
+                } else {
+                    addMessage('bot', "I didn't get that. Could you please rephrase your question?", 'bot');
+                }
+            },
+            error: function(xhr) {
+                hideTypingIndicator();
+                let errorMsg = "Sorry, there was an error processing your request.";
+                if (xhr.responseJSON && xhr.responseJSON.error) {
+                    errorMsg = xhr.responseJSON.error;
+                }
+                $('#chat-box').append(`
+                    <div class="alert alert-danger">
+                        Error: ${errorMsg}
+                    </div>
+                `);
+                scrollToBottom();
+            }
+        });
+    }
+});
+</script>
+
+<style>
+.chat-messages {
+    height: 400px;
+    overflow-y: auto;
+    padding: 15px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    border: 1px solid #dee2e6;
+}
+
+.user-message {
+    margin-left: 20%;
+    margin-right: 0;
+    margin-bottom: 10px;
+}
+
+.bot-message {
+    margin-right: 20%;
+    margin-left: 0;
+    margin-bottom: 10px;
+}
+
+.typing-indicator {
+    display: flex;
+    padding: 10px;
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+
+.typing-indicator .dot {
+    width: 8px;
+    height: 8px;
+    margin: 0 4px;
+    background-color: #6c757d;
+    border-radius: 50%;
+    animation: typing 1s infinite ease-in-out;
+}
+
+.typing-indicator .dot:nth-child(1) {
+    animation-delay: 0s;
+}
+.typing-indicator .dot:nth-child(2) {
+    animation-delay: 0.2s;
+}
+.typing-indicator .dot:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes typing {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+@media (max-width: 768px) {
+    .chat-messages {
+        height: 300px;
+    }
+    
+    .user-message, .bot-message {
+        margin-left: 0;
+        margin-right: 0;
+    }
+}
+</style>
+{% endblock %}
